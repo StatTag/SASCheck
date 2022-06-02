@@ -67,11 +67,13 @@ namespace SASCheck
             this.txtResults.Location = new System.Drawing.Point(15, 129);
             this.txtResults.Multiline = true;
             this.txtResults.Name = "txtResults";
+            this.txtResults.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtResults.Size = new System.Drawing.Size(625, 371);
             this.txtResults.TabIndex = 2;
             // 
             // cmdCopy
             // 
+            this.cmdCopy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.cmdCopy.Location = new System.Drawing.Point(590, 100);
             this.cmdCopy.Name = "cmdCopy";
             this.cmdCopy.Size = new System.Drawing.Size(50, 23);
@@ -82,7 +84,7 @@ namespace SASCheck
             // 
             // lblCopied
             // 
-            this.lblCopied.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.lblCopied.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblCopied.AutoSize = true;
             this.lblCopied.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
             this.lblCopied.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -94,7 +96,7 @@ namespace SASCheck
             this.lblCopied.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblCopied.Visible = false;
             // 
-            // Form1
+            // SASCheck
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -104,7 +106,7 @@ namespace SASCheck
             this.Controls.Add(this.txtResults);
             this.Controls.Add(this.cmdRun);
             this.Controls.Add(this.label1);
-            this.Name = "Form1";
+            this.Name = "SASCheck";
             this.Text = "SAS Check";
             this.ResumeLayout(false);
             this.PerformLayout();
