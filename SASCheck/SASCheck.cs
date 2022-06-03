@@ -255,6 +255,17 @@ namespace SASCheck
                     AppendResults(string.Format("... SAS Object Manager DLL not found"));
                 }
 
+                var sasEAM = Path.Combine(sasIT, "SASEAM.dll");
+                AppendResults(string.Format("Checking: {0}", sasEAM));
+                if (File.Exists(sasEAM))
+                {
+                    AppendResults("... Found");
+                }
+                else
+                {
+                    AppendResults(string.Format("... SAS EAM DLL not found"));
+                }
+
                 var sasITx86 = Path.Combine(sasHome, "x86\\Integration Technologies");
                 AppendResults(string.Format("Checking: {0}", sasITx86));
                 if (Directory.Exists(sasITx86))
@@ -315,6 +326,20 @@ namespace SASCheck
                 AppendResults("Adding workspace to object keeper");
                 objectKeeper.AddObject(1, "Test", workspace);
 
+                AppendResults("Checking for LanguageService");
+                var lang = workspace.LanguageService;
+                if (lang == null)
+                {
+                    AppendResults("... Is NULL");
+                }
+                else
+                {
+                    AppendResults("... Found");
+                }
+
+                RunTestCommand(workspace, "");
+                RunTestCommand(workspace, "%put \"testing\";");
+
                 AppendResults("Closing workspace");
                 workspace.Close();
 
@@ -323,6 +348,62 @@ namespace SASCheck
 
                 workspace = null;
                 AppendResults("...Success");
+            }
+            catch (Exception exc)
+            {
+                AppendException(exc);
+            }
+        }
+
+        private void RunTestCommand(SAS.Workspace workspace, string command)
+        {
+            try
+            {
+                AppendResults(string.Format("Attempting to run command: {0}", command));
+                Array carriageControls;
+                Array lineTypeArray;
+                Array logLineArray;
+
+                AppendResults("... Submitting command");
+                workspace.LanguageService.Submit(command);
+
+                // These calls need to be made because they cause SAS to initialize internal structures that
+                // are used when FlushLogLines is called.  Even though we're not really doing anything with these
+                // values, don't remove these calls.
+                AppendResults("... Initialization workaround");
+                SAS.LanguageServiceCarriageControl carriageControlTemp = new SAS.LanguageServiceCarriageControl();
+                var tmp = carriageControlTemp.ToString();
+                var ccNormal = SAS.LanguageServiceCarriageControl.LanguageServiceCarriageControlNormal;
+                ccNormal.ToString();
+                SAS.LanguageServiceLineType lineTypeTemp = new SAS.LanguageServiceLineType();
+                tmp = lineTypeTemp.ToString();
+                var ltNormal = SAS.LanguageServiceLineType.LanguageServiceLineTypeNormal;
+                ltNormal.ToString();
+
+                // For all of the lines that we got back from SAS, we want to find those that are of the Normal type (meaning they
+                // would contain some type of result/output), and that aren't empty.  Filtering empty lines is done because SAS
+                // will dump out a bunch of extra output when we run, including blank Normal lines.
+                var relevantLines = new List<string>();
+                do
+                {
+                    AppendResults("... FlushLogLines from LanguageService");
+                    workspace.LanguageService.FlushLogLines(1000, out carriageControls, out lineTypeArray, out logLineArray);
+                    for (int index = 0; index < logLineArray.GetLength(0); index++)
+                    {
+                        var lineType = (SAS.LanguageServiceLineType)lineTypeArray.GetValue(index);
+                        var line = (string)logLineArray.GetValue(index);
+                        if (lineType == SAS.LanguageServiceLineType.LanguageServiceLineTypeNormal
+                            && !string.IsNullOrWhiteSpace(line))
+                        {
+                            relevantLines.Add(line);
+                        }
+                    }
+
+                }
+                while (logLineArray != null && logLineArray.Length > 0);
+
+                AppendResults(".... Finished retrieving log results");
+                AppendResults(string.Join("\r\n", relevantLines));
             }
             catch (Exception exc)
             {
